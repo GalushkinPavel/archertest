@@ -33,9 +33,8 @@ namespace ArcherTestTask
         [TestCase(@"f\bla\ra\t.dat")]
         public void testAllHandler(String fullName)
         {
-            Context context = new Context();
-            context.Strategy = new AllHandler();
-            String res = context.ExecuteOperation(fullName);
+            AllHandler ah = new AllHandler();
+            String res = ah.fileHandle(fullName);
             Assert.AreEqual(res, fullName);
         }
 
@@ -44,9 +43,8 @@ namespace ArcherTestTask
         [TestCase(@"f\bla\ra\t.cpp", ExpectedResult = @"f\bla\ra\t.cpp /")]
         public String testCppHandler(String fullName)
         {
-            Context context = new Context();
-            context.Strategy = new CppHandler();
-            return context.ExecuteOperation(fullName);
+            CppHandler ch = new CppHandler();
+            return ch.fileHandle(fullName);
         }
 
         [Test]
@@ -54,9 +52,8 @@ namespace ArcherTestTask
         [TestCase(@"f\bla\ra\t.dat", ExpectedResult = @"t.dat\ra\bla\f")]
         public String testReverseOneHandler(String fullName)
         {
-            Context context = new Context();
-            context.Strategy = new ReverseOneHandler();
-            return context.ExecuteOperation(fullName);
+            ReverseOneHandler rh = new ReverseOneHandler();
+            return rh.fileHandle(fullName);
         }
 
         [Test]
@@ -64,15 +61,39 @@ namespace ArcherTestTask
         [TestCase(@"f\bla\ra\t.dat", ExpectedResult = @"tad.t\ar\alb\f")]
         public String testReverseTwoHandler(String fullName)
         {
-            Context context = new Context();
-            context.Strategy = new ReverseTwoHandler();
-            return context.ExecuteOperation(fullName);
+            ReverseTwoHandler rh = new ReverseTwoHandler();
+            return rh.fileHandle(fullName);
         }
 
         [Test]
-        public void testCrawlerException()
+        public void testCrawlerConstrException()
         {
             Assert.Throws<ArgumentNullException>(() => new DirCrawler(null));
+        }
+
+        [Test]
+        public void testCrawlerSetterException()
+        {
+            DirCrawler dc = new DirCrawler(new Context());
+            Assert.Throws<ArgumentNullException>(() => dc.context = null);
+        }
+
+        [Test]
+        [TestCase(@"c:\f\bla\ra\t.dat", @"c:\f\bla", ExpectedResult = @"ra\t.dat")]
+        public string testGetRelativePath(string filespec, string folder)
+        {
+            return new Context().GetRelativePath(filespec, folder);
+        }
+
+        [Test]
+        [TestCase("", ExpectedResult = "")]
+        [TestCase("  ", ExpectedResult = "  ")]
+        [TestCase(@"c:\f\bla\ra\t.dat", ExpectedResult = @"ra\t.dat")]
+        public string testExecuteOperation(String s) {
+            Utils.startFolder = @"c:\f\bla";
+            Context c = new Context();
+            c.Strategy = new AllHandler();
+            return c.ExecuteOperation(s);
         }
     }
 }

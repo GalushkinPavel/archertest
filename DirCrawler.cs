@@ -13,11 +13,24 @@ namespace ArcherTestTask
     {
         private readonly ConcurrentQueue<string> folderQueue = new ConcurrentQueue<string>();
         private readonly ConcurrentBag<Task> tasks = new ConcurrentBag<Task>();
-        private Context context;
 
+        private Context _context;
+
+        // property injection (in case the context should be replaced)
+        public Context context
+        {
+            set
+            {
+                if (value == null) throw new ArgumentNullException(Utils.MSG_NULL_CONTEXT);
+                this._context = value;
+            }
+            private get { return _context; }
+        }
+
+        // constructor injection
         public DirCrawler(Context context) {
             if (context == null) throw new ArgumentNullException(Utils.MSG_NULL_CONTEXT);
-            this.context = context;
+            this._context = context;
         }
 
         public void CollectFolders(string path)
